@@ -291,6 +291,13 @@ namespace FortuneWheel
 
 		TriangleFanPrimitive _pie = new TriangleFanPrimitive(32);
 
+		private float GetTextScale()
+		{
+			var textWidth = Text.CurrentFont.MeasureStringWidth("99");
+			var availableWidth = (_radius * 0.8f * MathHelper.TwoPi) / Numbers.Count;
+			return Math.Min(1, availableWidth / textWidth * 0.75f);
+		}
+
 		private void DrawPie(Angle arc, Angle rotation, float radius, Color color, int number, bool invert)
 		{
 			var vertexCount = (int)(arc.Degrees / 2);
@@ -325,7 +332,7 @@ namespace FortuneWheel
 			Text.Draw(
 				number + "",
 				_position + textRotation.ToVector2() * (radius * 0.8f) + _shadowOffset,
-				Vector2.One,
+				Vector2.One * GetTextScale(),
 				Vector2.Zero,
 				textRotation * -1 + Angle.Up
 			);
@@ -342,7 +349,7 @@ namespace FortuneWheel
 			Text.Draw(
 				number + "",
 				_position + textRotation.ToVector2() * (radius * 0.8f),
-				Vector2.One,
+				Vector2.One * GetTextScale(),
 				Vector2.Zero,
 				textRotation * -1 + Angle.Up
 			);

@@ -33,7 +33,7 @@ namespace FortuneWheel
 
 		private double _friction = 5;
 
-		private float _radius = 200;
+		private float _radius;
 
 		private Vector2 _shadowOffset = new Vector2(4, 4);
 

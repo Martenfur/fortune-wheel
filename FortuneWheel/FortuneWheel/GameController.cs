@@ -51,6 +51,11 @@ namespace FortuneWheel
 		public override void Update()
 		{
 			base.Update();
+
+			if (Input.CheckButtonPress(Buttons.Escape))
+			{
+				GameMgr.ExitGame();
+			}
 		}
 
 

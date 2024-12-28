@@ -37,7 +37,6 @@ namespace FortuneWheel
 		protected override void Initialize()
 		{
 			base.Initialize();
-			TiledEntityFactoryPool.InitFactoryPool();
 
 			new GameController();
 		}
@@ -53,7 +52,6 @@ namespace FortuneWheel
 			new SpriteGroupResourceBox("DefaultSprites", "Graphics/Default");
 			new DirectoryResourceBox<SoundEffect>("Sounds", "Audio/Sounds");
 			new DirectoryResourceBox<Effect>("Effects", "Effects");
-			new DirectoryResourceBox<TiledMap>("Maps", "Maps");
 			new Fonts();
 		}
 

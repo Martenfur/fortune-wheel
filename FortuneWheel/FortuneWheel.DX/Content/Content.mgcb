@@ -1,0 +1,61 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+/reference:../../FortuneWheel.Content/bin/AssimpNet.dll
+/reference:../../FortuneWheel.Content/bin/ATI.TextureConverter.dll
+/reference:../../FortuneWheel.Content/bin/CppNet.dll
+/reference:../../FortuneWheel.Content/bin/FortuneWheel.Content.dll
+/reference:../../FortuneWheel.Content/bin/Monofoxe.Pipeline.dll
+/reference:../../FortuneWheel.Content/bin/MonoGame.Framework.Content.Pipeline.dll
+/reference:../../FortuneWheel.Content/bin/MonoGame.Framework.dll
+/reference:../../FortuneWheel.Content/bin/Nvidia.TextureTools.dll
+/reference:../../FortuneWheel.Content/bin/PVRTexLibNET.dll
+/reference:../../FortuneWheel.Content/bin/SharpDX.D3DCompiler.dll
+/reference:../../FortuneWheel.Content/bin/SharpDX.dll
+/reference:../../FortuneWheel.Content/bin/SharpFont.dll
+/reference:../../FortuneWheel.Content/bin/StbImageSharp.dll
+
+#---------------------------------- Content ---------------------------------#
+
+#begin Content.npl
+/importer:ResourceInfoImporter
+/processor:PassThroughProcessor
+/build:Content.npl
+
+#begin ../../FortuneWheel.Content/Content/Graphics/Default.spritegroup
+/importer:SpriteGroupImporter
+/processor:SpriteGroupProcessor
+/build:../../FortuneWheel.Content/Content/Graphics/Default.spritegroup;Graphics/Default.spritegroup
+
+#begin ../../FortuneWheel.Content/Content/Fonts/Arial.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/build:../../FortuneWheel.Content/Content/Fonts/Arial.spritefont;Fonts/Arial.spritefont
+
+#begin ../../FortuneWheel.Content/Content/Audio/Sounds/tick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:../../FortuneWheel.Content/Content/Audio/Sounds/tick.wav;Audio/Sounds/tick.wav
+
+#begin ../../FortuneWheel.Content/Content/Fonts/ArialBig.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/build:../../FortuneWheel.Content/Content/Fonts/ArialBig.spritefont;Fonts/ArialBig.spritefont
+
+#begin ../../FortuneWheel.Content/Content/Audio/Sounds/bell.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:../../FortuneWheel.Content/Content/Audio/Sounds/bell.wav;Audio/Sounds/bell.wav
+
+#begin ../../FortuneWheel.Content/Content/Audio/Sounds/click.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:../../FortuneWheel.Content/Content/Audio/Sounds/click.wav;Audio/Sounds/click.wav

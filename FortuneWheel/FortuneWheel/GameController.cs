@@ -9,9 +9,6 @@ using Monofoxe.Engine.EC;
 using Monofoxe.Engine.Resources;
 using Monofoxe.Engine.SceneSystem;
 using Monofoxe.Engine.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace FortuneWheel
@@ -19,6 +16,7 @@ namespace FortuneWheel
 	public class GameController : Entity
 	{
 		public Camera2D Camera;
+		private Wheel _wheel;
 
 		public GameController() : base(SceneMgr.GetScene("default")["default"])
 		{
@@ -43,9 +41,21 @@ namespace FortuneWheel
 
 			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "Arial");
 
-			CircleShape.CircleVerticesCount = 64;
+			CircleShape.CircleVerticesCount = 128;
 
-			_wheel = new Wheel(LoadNumbers(), Layer, Vector2.One * Camera.Size.Y / 2, 800, Camera);
+			string json;
+
+			if (!File.Exists(State.StateFileName))
+			{
+				json = File.ReadAllText(State.DefaultStateFileName);
+			}
+			else
+			{ 
+				json = File.ReadAllText(State.StateFileName);
+			}
+
+			State.ParseState(json);
+			_wheel = new Wheel(Layer, Vector2.One * Camera.Size.Y / 2, 800, Camera);
 		}
 
 		public override void Update()
@@ -80,13 +90,6 @@ namespace FortuneWheel
 
 			if (_wheel.CanRemoveNumber)
 			{
-
-				GraphicsMgr.CurrentColor = new Color(65, 64, 109);
-				//for (var i = 1; i < 9; i += 1)
-				//RectangleShape.DrawBySize(buttonPos + Vector2.One * i, buttonSize, false);
-				GraphicsMgr.CurrentColor = new Color(179, 230, 255);
-				//RectangleShape.DrawBySize(buttonPos, buttonSize, false);
-
 				GraphicsMgr.CurrentColor = new Color(62, 59, 101);
 				Text.Draw("CLAIM", buttonPos + Vector2.One * 8);
 				GraphicsMgr.CurrentColor = new Color(178, 229, 146);
@@ -94,57 +97,16 @@ namespace FortuneWheel
 
 				var state = TouchPanel.GetState();
 
-
 				if (state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize))
 				{
 					ResourceHub.GetResource<SoundEffect>("Sounds", "click").Play();
 					_wheel.RemoveNumber();
-					SaveNumbers(_wheel.Numbers);
+					State.SaveState();
 				}
 			}
 
 			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "Arial");
 		}
 
-
-		private void SaveNumbers(List<int> numbers)
-		{
-			var path = Environment.CurrentDirectory + "/numbers.txt";
-			var lines = new List<string>();
-
-			foreach (var number in numbers)
-			{
-				lines.Add(number.ToString());
-			}
-			File.WriteAllLines(path, lines.ToArray());
-		}
-
-		private List<int> LoadNumbers()
-		{
-			var path = Environment.CurrentDirectory + "/numbers.txt";
-			if (!File.Exists(path))
-			{
-				return GenerateNumbers();
-			}
-			var lines = File.ReadAllLines(path);
-
-			var numbers = new List<int>();
-
-			foreach (var line in lines)
-			{
-				numbers.Add(int.Parse(line));
-			}
-
-			return numbers;
-		}
-
-		private int _numbersCount = 40;
-		private Wheel _wheel;
-
-		private List<int> GenerateNumbers()
-		{
-			var rng = new RandomExt();
-			return rng.GetListWithoutRepeats(_numbersCount, 1, _numbersCount + 1);
-		}
 	}
 }

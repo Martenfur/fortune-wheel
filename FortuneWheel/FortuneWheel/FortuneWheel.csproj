@@ -10,9 +10,16 @@
     </PackageReference>
     <PackageReference Include="Monofoxe.Engine" Version="2.2.0" />
     <PackageReference Include="Monofoxe.Tiled" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
  </ItemGroup>
 
+  <ItemGroup>
+    <None Update="default_state.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="BuildContentProject">
-    <Exec Command="dotnet build &quot;../FortuneWheel.Content/FortuneWheel.Content.csproj&quot;"/>
+    <Exec Command="dotnet build &quot;../FortuneWheel.Content/FortuneWheel.Content.csproj&quot;" />
   </Target>
 </Project>

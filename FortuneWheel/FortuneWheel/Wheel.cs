@@ -15,8 +15,6 @@ namespace FortuneWheel
 {
 	public class Wheel : Entity
 	{
-		public List<int> Numbers = new List<int>();
-
 		private Vector2 _position;
 
 		private Angle _rotation;
@@ -66,26 +64,24 @@ namespace FortuneWheel
 		private SoundEffect _tick;
 		private SoundEffect _bell;
 
-		public Wheel(List<int> numbers, Layer layer, Vector2 position, float radius, Camera2D camera) : base(layer)
+		public Wheel(Layer layer, Vector2 position, float radius, Camera2D camera) : base(layer)
 		{
 			_position = position;
 			_radius = radius;
 			_camera = camera;
-
-			Numbers.AddRange(numbers);
 
 			_tick = ResourceHub.GetResource<SoundEffect>("Sounds", "tick");
 			_bell = ResourceHub.GetResource<SoundEffect>("Sounds", "bell");
 		}
 
 
-		public bool CanRemoveNumber => _canRemoveNumber && Numbers.Count > 2 && _angularSpeed == 0;
+		public bool CanRemoveNumber => _canRemoveNumber && State.Numbers.Count > 2 && _angularSpeed == 0;
 
 
 		public int GetCurrentNumber()
 		{
-			var arc = 360f / Numbers.Count;
-			return Numbers[(int)((_rotation * -1 - 90).DegreesF / arc)];
+			var arc = 360f / State.Numbers.Count;
+			return State.Numbers[(int)((_rotation * -1 - 90).DegreesF / arc)];
 		}
 
 		public int RemoveNumber()
@@ -93,7 +89,7 @@ namespace FortuneWheel
 			if (CanRemoveNumber)
 			{
 				var number = GetCurrentNumber();
-				Numbers.Remove(number);
+				State.RemoveNumber(number);
 				_canRemoveNumber = false;
 
 				return number;
@@ -230,9 +226,9 @@ namespace FortuneWheel
 			GraphicsMgr.CurrentColor = _colors[4];
 			CircleShape.Draw(_position + _shadowOffset * 2, _radius, false);
 
-			var arc = new Angle(360f / Numbers.Count);
+			var arc = new Angle(360f / State.Numbers.Count);
 
-			for (var i = 0; i < Numbers.Count; i += 1)
+			for (var i = 0; i < State.Numbers.Count; i += 1)
 			{
 				var colorIndex = i;
 				while (colorIndex >= _colors.Length)
@@ -240,13 +236,13 @@ namespace FortuneWheel
 					colorIndex -= _colors.Length;
 				}
 
-				if (Numbers[i] == GetCurrentNumber())
+				if (State.Numbers[i] == GetCurrentNumber())
 				{
-					DrawPie(arc, _rotation + arc * i, _radius - 16, _colors[colorIndex], Numbers[i], colorIndex == 0);
+					DrawPie(arc, _rotation + arc * i, _radius - 16, _colors[colorIndex], State.Numbers[i], colorIndex == 0);
 				}
 				else
 				{
-					DrawPie(arc, _rotation + arc * i, _radius, _colors[colorIndex], Numbers[i], colorIndex == 0);
+					DrawPie(arc, _rotation + arc * i, _radius, _colors[colorIndex], State.Numbers[i], colorIndex == 0);
 				}
 			}
 
@@ -294,7 +290,7 @@ namespace FortuneWheel
 		private float GetTextScale()
 		{
 			var textWidth = Text.CurrentFont.MeasureStringWidth("99");
-			var availableWidth = (_radius * 0.8f * MathHelper.TwoPi) / Numbers.Count;
+			var availableWidth = (_radius * 0.8f * MathHelper.TwoPi) / State.Numbers.Count;
 			return Math.Min(1, availableWidth / textWidth * 0.75f);
 		}
 

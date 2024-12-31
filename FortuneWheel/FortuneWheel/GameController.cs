@@ -10,6 +10,7 @@ using Monofoxe.Engine.Resources;
 using Monofoxe.Engine.SceneSystem;
 using Monofoxe.Engine.Utils;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime;
 
@@ -76,6 +77,7 @@ namespace FortuneWheel
 			base.Draw();
 
 			DrawWinnersList();
+			DrawModeButtons();
 
 			Text.VerAlign = TextAlign.Center;
 			Text.HorAlign = TextAlign.Center;
@@ -124,6 +126,40 @@ namespace FortuneWheel
 				}
 
 				DrawFancyText(text, textPos + Vector2.UnitY * 80 * i);
+			}
+		}
+
+		private void DrawModeButtons()
+		{
+			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "ArialBig");
+
+			var buttonSize = Text.CurrentFont.MeasureString("A") + Vector2.One * 64;
+			var buttonPos = new Vector2(Camera.Size.X - 64 - buttonSize.X / 2 - buttonSize.X * 2, buttonSize.Y / 2);
+
+			DrawLargeFancyText("A", buttonPos);
+
+			var state = TouchPanel.GetState();
+			var touchPress = state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize);
+			var mousePress = Input.CheckButtonRelease(Buttons.MouseLeft) && GameMath.PointInRectangleBySize(Camera.GetRelativeMousePosition(), buttonPos, buttonSize);
+
+			if (touchPress || mousePress)
+			{
+				SpinState.RollingUsers = new[] { "Foxe" };
+			}
+
+
+
+			buttonPos = new Vector2(Camera.Size.X - 64 - buttonSize.X / 2, buttonSize.Y / 2);
+
+			DrawLargeFancyText("B", buttonPos);
+
+			state = TouchPanel.GetState();
+			touchPress = state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize);
+			mousePress = Input.CheckButtonRelease(Buttons.MouseLeft) && GameMath.PointInRectangleBySize(Camera.GetRelativeMousePosition(), buttonPos, buttonSize);
+
+			if (touchPress || mousePress)
+			{
+				SpinState.RollingUsers = new[] { "Kity" };
 			}
 		}
 

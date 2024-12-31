@@ -1,20 +1,23 @@
-﻿using Monofoxe.Engine;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Monofoxe.Engine;
+using Monofoxe.Engine.Cameras;
 using Monofoxe.Engine.Drawing;
 using Monofoxe.Engine.EC;
+using Monofoxe.Engine.Resources;
 using Monofoxe.Engine.SceneSystem;
 using Monofoxe.Engine.Utils;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
-using Monofoxe.Engine.Cameras;
-using Microsoft.Xna.Framework.Audio;
-using Monofoxe.Engine.Resources;
 
 namespace FortuneWheel
 {
 	public class Wheel : Entity
 	{
+		public bool NeverStopOnOwnNumber = true;
+		public const float SlideSpeed = 75;
+		public const float MinSlideSpeed = 10;
+
 		private Vector2 _position;
 
 		private Angle _rotation;
@@ -140,22 +143,49 @@ namespace FortuneWheel
 
 			var friction = _friction + Math.Abs(_angularSpeed) * 1f;
 
-			if (_angularSpeed != 0 &&  Math.Abs(_angularSpeed) < TimeKeeper.Global.Time(friction))
+			if (_angularSpeed != 0 && Math.Abs(_angularSpeed) < TimeKeeper.Global.Time(friction))
 			{
 				_angularSpeed = 0;
 				if (_canRemoveNumber)
-				{ 
+				{
 					_bell.Play();
 				}
 			}
 
-			if (_angularSpeed > 0)
+			var sameOwner = State.GetOwner(GetCurrentNumber()) == RollState.RollingUser;
+			var slidePast = (Math.Abs(_angularSpeed) < SlideSpeed && sameOwner);
+
+
+			if (!NeverStopOnOwnNumber || !slidePast)
 			{
-				_angularSpeed -= TimeKeeper.Global.Time(friction);
+				if (_angularSpeed > 0)
+				{
+					_angularSpeed -= TimeKeeper.Global.Time(friction);
+				}
+				if (_angularSpeed < 0)
+				{
+					_angularSpeed += TimeKeeper.Global.Time(friction);
+				}
 			}
-			if (_angularSpeed < 0)
+			else
 			{
-				_angularSpeed += TimeKeeper.Global.Time(friction);
+				// Edge case to make sure we absolutely do not stop on our own number.
+				if (Math.Abs(_angularSpeed) < TimeKeeper.Global.Time(friction) * 2)
+				{
+					_angularSpeed = TimeKeeper.Global.Time(friction) * 2 * Math.Sign(GetAverageSpeed());
+				}
+				// Accelerating is speed is too low.
+				if (Math.Abs(_angularSpeed) < MinSlideSpeed)
+				{
+					if (_angularSpeed > 0)
+					{
+						_angularSpeed += TimeKeeper.Global.Time(friction);
+					}
+					if (_angularSpeed < 0)
+					{
+						_angularSpeed -= TimeKeeper.Global.Time(friction);
+					}
+				}
 			}
 
 			LogRotation();
@@ -166,7 +196,7 @@ namespace FortuneWheel
 				_stopperAnimation.Stop();
 				_stopperAnimation.Start();
 				if (_tickCooldown <= 0 && _angularSpeed != 0)
-				{ 
+				{
 					_tick.Play();
 					_tickCooldown = 3;
 				}
@@ -210,7 +240,7 @@ namespace FortuneWheel
 
 			_r -= (_r - _targetR) / 4f;
 
-			for(var i = 8; i >= 0; i -= 1)
+			for (var i = 8; i >= 0; i -= 1)
 			{
 				var colorIndex = i;
 				while (colorIndex >= _colors.Length)

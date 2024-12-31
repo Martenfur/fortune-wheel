@@ -9,6 +9,7 @@ using Monofoxe.Engine.SceneSystem;
 using Monofoxe.Engine.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FortuneWheel
 {
@@ -87,23 +88,54 @@ namespace FortuneWheel
 			return State.Numbers[(int)((_rotation * -1 - 90).DegreesF / arc)];
 		}
 
-		public int RemoveNumber()
+		public void RemoveNumbers()
 		{
-			if (CanRemoveNumber)
+			if (!CanRemoveNumber)
 			{
-				var number = GetCurrentNumber();
-				State.RemoveNumber(number);
-				_canRemoveNumber = false;
-
-				return number;
+				return;
 			}
-
-			return -1;
+			foreach (var number in PickedNumbers)
+			{
+				State.RemoveNumber(number);
+			}
+			_canRemoveNumber = false;
 		}
 
 		bool _grabbed = false;
 
 		int _tickCooldown = 0;
+
+		// Multiselect
+
+		private double _referenceSpeed;
+
+		/// <summary>
+		/// In a spin, goes from 1 to 0. 1 is full speed we gave the wheel, 0 - full stop.
+		/// </summary>
+		private double _spinProgress
+		{
+			get
+			{
+				if (_referenceSpeed == 0)
+				{
+					return 0;
+				}
+				return Math.Min(1, Math.Abs(_angularSpeed / _referenceSpeed));
+			}
+		}
+
+		/// <summary>
+		/// Amount of numbers that wheel can currently pick based on spin progress.
+		/// </summary>
+		private int _availableNumbersToPick => (int)Math.Floor((1 - _spinProgress) * SpinState.RollingUsers.Length); // could also add min(v, n - 1)
+
+		public List<int> PickedNumbers = new List<int>();
+
+		private int _unpickedNumbers => _availableNumbersToPick - PickedNumbers.Count;
+
+		// Multiselect
+
+
 		public override void Update()
 		{
 			base.Update();
@@ -136,6 +168,8 @@ namespace FortuneWheel
 				_angularSpeed = GetAverageSpeed() * 100;
 				if (Math.Abs(_angularSpeed) > _speedTreshhold)
 				{
+					_referenceSpeed = _angularSpeed;
+					PickedNumbers.Clear();
 					_canRemoveNumber = true;
 				}
 			}
@@ -152,7 +186,7 @@ namespace FortuneWheel
 				}
 			}
 
-			var sameOwner = State.GetOwner(GetCurrentNumber()) == RollState.RollingUser;
+			var sameOwner = State.GetOwner(GetCurrentNumber()) == SpinState.RollingUsers[Math.Min(PickedNumbers.Count, SpinState.RollingUsers.Length - 1)];
 			var slidePast = (Math.Abs(_angularSpeed) < SlideSpeed && sameOwner);
 
 
@@ -187,6 +221,16 @@ namespace FortuneWheel
 					}
 				}
 			}
+
+			// Multiselect
+
+			if (_canRemoveNumber && _unpickedNumbers > 0 && !sameOwner && !PickedNumbers.Contains(GetCurrentNumber()))
+			{
+				PickedNumbers.Add(GetCurrentNumber());
+			}
+
+			// Multiselect
+
 
 			LogRotation();
 

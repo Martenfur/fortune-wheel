@@ -100,7 +100,7 @@ namespace FortuneWheel
 				if (state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize))
 				{
 					ResourceHub.GetResource<SoundEffect>("Sounds", "click").Play();
-					_wheel.RemoveNumber();
+					_wheel.RemoveNumbers();
 					State.SaveState();
 				}
 			}

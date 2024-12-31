@@ -120,6 +120,10 @@ namespace FortuneWheel
 				{
 					return 0;
 				}
+				if (_angularSpeed == 0)
+				{
+					return 0;
+				}
 				return Math.Min(1, Math.Abs(_angularSpeed / _referenceSpeed));
 			}
 		}
@@ -176,18 +180,23 @@ namespace FortuneWheel
 
 
 			var friction = _friction + Math.Abs(_angularSpeed) * 1f;
-
-			if (_angularSpeed != 0 && Math.Abs(_angularSpeed) < TimeKeeper.Global.Time(friction))
+			var sameOwner = State.GetOwner(GetCurrentNumber()) == SpinState.RollingUsers[Math.Min(PickedNumbers.Count, SpinState.RollingUsers.Length - 1)];
+			var slidePast = Math.Abs(_angularSpeed) < SlideSpeed
+				&& (
+				sameOwner || (PickedNumbers.Contains(GetCurrentNumber()) && (PickedNumbers.Count == (SpinState.RollingUsers.Length - 1)))
+			);
+			if (!slidePast)
 			{
-				_angularSpeed = 0;
-				if (_canRemoveNumber)
+				if (_angularSpeed != 0 && Math.Abs(_angularSpeed) < TimeKeeper.Global.Time(friction))
 				{
-					_bell.Play();
+					_angularSpeed = 0;
+					if (_canRemoveNumber)
+					{
+						_bell.Play();
+					}
 				}
 			}
 
-			var sameOwner = State.GetOwner(GetCurrentNumber()) == SpinState.RollingUsers[Math.Min(PickedNumbers.Count, SpinState.RollingUsers.Length - 1)];
-			var slidePast = (Math.Abs(_angularSpeed) < SlideSpeed && sameOwner);
 
 
 			if (!NeverStopOnOwnNumber || !slidePast)

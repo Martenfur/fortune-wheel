@@ -9,7 +9,9 @@ using Monofoxe.Engine.EC;
 using Monofoxe.Engine.Resources;
 using Monofoxe.Engine.SceneSystem;
 using Monofoxe.Engine.Utils;
+using System;
 using System.IO;
+using System.Runtime;
 
 namespace FortuneWheel
 {
@@ -73,31 +75,30 @@ namespace FortuneWheel
 		{
 			base.Draw();
 
+			DrawWinnersList();
 
 			Text.VerAlign = TextAlign.Center;
 			Text.HorAlign = TextAlign.Center;
-
 			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "ArialBig");
-
+			
 			var textPos = new Vector2(Camera.Size.X - Camera.Size.Y / 2 + 600, Camera.Size.Y * 0.5f);
 			var buttonSize = Text.CurrentFont.MeasureString("CLAIM") + Vector2.One * 32;
 			var buttonPos = new Vector2(Camera.Size.X - 64 - buttonSize.X / 2, Camera.Size.Y - 64 - buttonSize.Y / 2);
 
-			GraphicsMgr.CurrentColor = new Color(62, 59, 101);
-			Text.Draw(_wheel.GetCurrentNumber().ToString(), textPos + Vector2.One * 8);
-			GraphicsMgr.CurrentColor = new Color(178, 229, 146);
-			Text.Draw(_wheel.GetCurrentNumber().ToString(), textPos);
+			DrawLargeFancyText(_wheel.GetCurrentNumber().ToString(), textPos);
 
 			if (_wheel.CanRemoveNumber)
 			{
-				GraphicsMgr.CurrentColor = new Color(62, 59, 101);
-				Text.Draw("CLAIM", buttonPos + Vector2.One * 8);
-				GraphicsMgr.CurrentColor = new Color(178, 229, 146);
-				Text.Draw("CLAIM", buttonPos);
+				DrawLargeFancyText("CLAIM", buttonPos);
+
+				GraphicsMgr.CurrentColor = Color.Red;
+				RectangleShape.DrawBySize(buttonPos, buttonSize, true);
 
 				var state = TouchPanel.GetState();
+				var touchPress = state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize);
+				var mousePress = Input.CheckButtonRelease(Buttons.MouseLeft) && GameMath.PointInRectangleBySize(Camera.GetRelativeMousePosition(), buttonPos, buttonSize);
 
-				if (state.Count > 0 && state[0].State != TouchLocationState.Released && GameMath.PointInRectangleBySize(state[0].Position, buttonPos, buttonSize))
+				if (touchPress || mousePress)
 				{
 					ResourceHub.GetResource<SoundEffect>("Sounds", "click").Play();
 					_wheel.RemoveNumbers();
@@ -106,6 +107,42 @@ namespace FortuneWheel
 			}
 
 			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "Arial");
+		}
+
+		private void DrawWinnersList()
+		{
+			Text.VerAlign = TextAlign.Center;
+			Text.HorAlign = TextAlign.Left;
+			var textPos = new Vector2(Camera.Size.X - Camera.Size.Y / 2 + 0, Camera.Size.Y * 0.15f);
+			for (var i = 0; i < SpinState.RollingUsers.Length; i += 1)
+			{
+				var text = SpinState.RollingUsers[i];
+
+				if (_wheel.PickedNumbers.Count > i)
+				{
+					text += " gets [" + _wheel.PickedNumbers[i] + "] from " + State.GetOwner(_wheel.PickedNumbers[i]);
+				}
+
+				DrawFancyText(text, textPos + Vector2.UnitY * 80 * i);
+			}
+		}
+
+		private void DrawFancyText(string text, Vector2 pos)
+		{
+			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "Arial");
+			GraphicsMgr.CurrentColor = new Color(62, 59, 101);
+			Text.Draw(text, pos + Vector2.One * 4);
+			GraphicsMgr.CurrentColor = new Color(178, 229, 146);
+			Text.Draw(text, pos);
+		}
+
+		private void DrawLargeFancyText(string text, Vector2 pos)
+		{
+			Text.CurrentFont = ResourceHub.GetResource<IFont>("Fonts", "ArialBig");
+			GraphicsMgr.CurrentColor = new Color(62, 59, 101);
+			Text.Draw(text, pos + Vector2.One * 8);
+			GraphicsMgr.CurrentColor = new Color(178, 229, 146);
+			Text.Draw(text, pos);
 		}
 
 	}
